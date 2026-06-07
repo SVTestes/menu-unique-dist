@@ -1,0 +1,2320 @@
+/* NOTA: os @font-face foram movidos para shared/fonts.css (caminhos de fonte
+   só resolvem no domínio do site, então não podem ir pro CDN). Este arquivo
+   é a BASE compartilhada (sem fontes) servida via CDN. Não editar à mão o
+   build/ nem o dist/ — edite aqui. */
+
+/* ═══════════════════════════════════════════════════════════════════
+   UNIQUE CAFÉS — HEADER CSS COMPLETO (v2 - FIX 17 removido)
+   ═══════════════════════════════════════════════════════════════════
+   ATUALIZACAO 17/05/2026:
+   - FIX 17 removido (causava 192px de espaço branco abaixo do header)
+   - O template do Theme Builder já posiciona o conteúdo corretamente
+     através do padding-top do título do produto
+
+   Este arquivo contém:
+   1) CSS principal (estrutura, cores, tipografia, animacoes)
+   2) Patch CSS atualizado (FIXES 1-16, 18, sem o FIX 17)
+
+   IMPORTANTE: cole TUDO de uma vez em:
+   Divi → Opcoes do Tema → Geral → CSS Personalizado
+
+   Apague o CSS atual e cole esse no lugar.
+   Depois salve, limpe o cache do WP Rocket e do navegador.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  PARTE 1 DE 2: CSS PRINCIPAL                                      ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+/* ═══════════════════════════════════════════════════════════
+   1. TOKENS DA MARCA
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Cores institucionais */
+  --gold:        #9A8442;
+  --gold-soft:   #B89E5A;
+  --gold-deep:   #7A6832;
+  --brown:       #4D382A;
+  --brown-soft:  #6B4F3D;
+  --offwhite:    #EFEBE5;
+  --offwhite-2:  #E5E0D6;
+  --white:       #FFFFFF;
+  --black:       #000000;
+
+  /* Cores secundárias (variedades) — disponíveis pra acentos */
+  --blend:       #F79548;
+  --frutado:     #EAD654;
+  --bourbon:     #F58E82;
+  --organico:    #A1D07C;
+  --moca:        #A3B1DA;
+  --descaf:      #8689C3;
+
+  /* Tipografia
+     Em produção, trocar 'Syne' por 'PP Neue Machina Inktrap'
+     e 'Manrope' por 'Halyard Text'. */
+  --ff-display: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif;
+  --ff-body:    'Manrope', 'Halyard Text', system-ui, sans-serif;
+
+  /* Métricas */
+  --header-h: 88px;
+  --promo-h: 44px;
+  --action-h: 60px;
+  --max-w: 1440px;
+  --pad-x: 32px;
+  --radius-pill: 999px;
+  --radius-md: 4px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+
+  /* Altura total visível do header em cada estado.
+     Normal: promo + action + main (todas as 3 barras).
+     Scrolled: só o main-header compacto (promo+action colapsadas via max-height: 0). */
+  --header-visible-h: calc(var(--promo-h) + var(--action-h) + var(--header-h));
+}
+
+/* Quando o header está em modo compacto, a altura visível vira a do main-header reduzido */
+body.is-header-stuck { --header-visible-h: 64px; }
+@media (max-width: 768px) {
+  body.is-header-stuck { --header-visible-h: 56px; }
+}
+
+/* ─── Desktop pequeno (769–1100px): reduzir paddings/gaps preventivamente
+   pra garantir que o navmenu nunca quebre em duas linhas, mesmo em estado normal ─── */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .main-header { padding: 0 16px; }
+  .menu-trigger { padding: 14px 12px; }
+  .nav-link { padding: 14px 10px; }
+  .main-header__center { gap: 2px; }
+  .main-header__left,
+  .main-header__right { gap: 2px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. RESET + BASE ESCOPADO (sem vazar pro resto do site)
+   ───────────────────────────────────────────────────────────
+   Escopo: tudo aplicado dentro de .site-header, .mega-menu e .drawer.
+   NÃO usamos reset universal (*) nem padding-top no body, pra não
+   conflitar com o Divi e o conteúdo das páginas.
+   ═══════════════════════════════════════════════════════════ */
+.site-header, .site-header *, .site-header *::before, .site-header *::after,
+.mega-menu, .mega-menu *, .mega-menu *::before, .mega-menu *::after,
+.drawer, .drawer *, .drawer *::before, .drawer *::after {
+  box-sizing: border-box;
+}
+
+.site-header, .mega-menu, .drawer {
+  font-family: var(--ff-body);
+  color: var(--brown);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-header button, .mega-menu button, .drawer button {
+  font: inherit; color: inherit; background: none; border: 0; cursor: pointer;
+  margin: 0; padding: 0;
+}
+.site-header a, .mega-menu a, .drawer a { color: inherit; text-decoration: none; }
+.site-header img, .mega-menu img, .drawer img { max-width: 100%; display: block; }
+.site-header ul, .mega-menu ul, .drawer ul { list-style: none; margin: 0; padding: 0; }
+.site-header p, .mega-menu p, .drawer p,
+.site-header h1, .site-header h2, .site-header h3, .site-header h4,
+.mega-menu h1, .mega-menu h2, .mega-menu h3, .mega-menu h4,
+.drawer h1, .drawer h2, .drawer h3, .drawer h4 { margin: 0; padding: 0; }
+
+.display { font-family: var(--ff-display); font-weight: 700; letter-spacing: 0.025em; text-transform: uppercase; }
+
+/* ═══════════════════════════════════════════════════════════
+   3. HEADER WRAPPER (sticky, nunca muda no scroll)
+   ═══════════════════════════════════════════════════════════ */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--offwhite);
+  border-bottom: 1px solid rgba(77, 56, 42, 0.08);
+}
+
+/* ─── 3.1 PROMO BAR (mantém o aviso atual do site) ─── */
+.promo-bar {
+  height: var(--promo-h);
+  background: var(--brown);
+  color: var(--offwhite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  gap: 8px;
+}
+.promo-bar strong { color: var(--gold-soft); font-weight: 600; }
+.promo-bar a {
+  color: var(--brown);
+  background: var(--gold);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  transition: background .2s var(--ease);
+}
+.promo-bar a:hover { background: var(--gold-soft); }
+
+/* Carrossel da promo-bar */
+.promo-bar__viewport {
+  position: relative;
+  width: min(640px, 78vw);
+  height: 100%;
+  overflow: hidden;
+}
+.promo-bar__slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s var(--ease);
+  pointer-events: none;
+}
+.promo-bar__slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.promo-bar__nav {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--offwhite);
+  opacity: 0.55;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: opacity .2s var(--ease);
+}
+.promo-bar__nav:hover { opacity: 1; }
+.promo-bar__nav svg { width: 14px; height: 14px; }
+
+/* Promo-bar conteúdo estático (desktop) — mesma aparência de um slide ativo */
+.promo-bar__static {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Toggle desktop/mobile dos conteúdos da promo-bar */
+.promo-bar__desktop-only { /* visível por padrão (desktop), display original mantido */ }
+.promo-bar__mobile-only { display: none; }
+
+/* Carrossel rotativo dentro da action-bar (desktop) */
+.action-rotativo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.action-rotativo__nav {
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: 0;
+  color: var(--brown);
+  opacity: 0.5;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity .2s var(--ease);
+}
+.action-rotativo__nav:hover { opacity: 1; }
+.action-rotativo__nav svg { width: 12px; height: 12px; }
+.action-rotativo__viewport {
+  display: grid;
+  width: max-content;
+  max-width: min(440px, 38vw);
+  height: 22px;
+  overflow: hidden;
+}
+.action-rotativo__slide {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--brown-soft);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s var(--ease);
+}
+.action-rotativo__slide.is-active { opacity: 1; }
+.action-rotativo__slide strong { color: var(--gold); font-weight: 600; }
+
+/* ─── 3.2 ACTION BAR — Quero Comprar / Quero Revender (estilo Vida Veg) ─── */
+.action-bar {
+  height: var(--action-h);
+  background: var(--offwhite-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--pad-x);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  box-shadow: 0 0 0 100vmax var(--offwhite-2);
+  clip-path: inset(0 -100vmax);
+}
+.action-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 12px;
+  color: var(--brown-soft);
+  letter-spacing: 0.02em;
+}
+.action-bar__left .stamp {
+  font-family: var(--ff-display);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 3px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+.cta-pills {
+  display: flex;
+  gap: 10px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: var(--radius-pill);
+  font-family: var(--ff-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all .25s var(--ease);
+  white-space: nowrap;
+}
+.pill svg { width: 12px; height: 12px; transition: transform .25s var(--ease); }
+.pill:hover svg { transform: translateX(3px); }
+
+.pill--primary {
+  background: var(--gold);
+  color: var(--offwhite);
+}
+.pill--primary:hover { background: var(--gold-deep); }
+
+.pill--secondary {
+  background: transparent;
+  color: var(--brown);
+  border: 1.5px solid var(--brown);
+}
+.pill--secondary:hover { background: var(--brown); color: var(--offwhite); }
+
+/* ─── 3.3 MAIN HEADER (logo + ações) ─── */
+.main-header {
+  height: var(--header-h);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 var(--pad-x);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  transition: height .25s var(--ease), padding .25s var(--ease);
+}
+.main-header__left,
+.main-header__right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+.main-header__right { justify-content: flex-end; }
+.main-header__center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+/* Botão MENU (gatilho do mega menu) */
+.menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 18px;
+  font-family: var(--ff-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--brown);
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  transition: background .2s var(--ease);
+}
+.menu-trigger:hover { background: rgba(154, 132, 66, 0.08); }
+.menu-trigger .bars {
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+}
+.menu-trigger .bars span {
+  width: 18px; height: 2px;
+  background: var(--brown);
+  transition: transform .3s var(--ease), opacity .3s var(--ease);
+}
+.menu-trigger.is-active .bars span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+.menu-trigger.is-active .bars span:nth-child(2) { opacity: 0; }
+.menu-trigger.is-active .bars span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+.menu-trigger__icon { width: 16px; height: 16px; }
+
+/* ─── Wrapper + Tooltip do menu trigger ─── */
+.menu-trigger-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.menu-trigger-tooltip {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--brown);
+  color: var(--offwhite);
+  font-family: var(--ff-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 10px 12px 10px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 32px -10px rgba(77, 56, 42, 0.35);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity .25s var(--ease),
+    transform .25s var(--ease),
+    visibility .25s var(--ease);
+  z-index: 5;
+}
+.menu-trigger-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--brown);
+  border-radius: 2px;
+}
+.menu-trigger-tooltip.is-pinned,
+.menu-trigger-tooltip.is-hover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.menu-trigger-tooltip__close {
+  display: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  color: var(--offwhite);
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity .2s var(--ease), background .2s var(--ease);
+}
+.menu-trigger-tooltip__close svg { width: 11px; height: 11px; stroke-width: 2.2; }
+.menu-trigger-tooltip__close:hover {
+  opacity: 1;
+  background: rgba(239, 235, 229, 0.14);
+}
+/* X só aparece no modo first-visit (pinned), não no hover puro */
+.menu-trigger-tooltip.is-pinned .menu-trigger-tooltip__close {
+  display: inline-flex;
+}
+
+/* Nav links — itens de navegação ao lado do gatilho Unique */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 14px;
+  font-family: var(--ff-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--brown);
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  transition: background .2s var(--ease);
+}
+.nav-link:hover { background: rgba(154, 132, 66, 0.08); }
+
+/* ─── Nav dropdowns simples (hover desktop / clique mobile) ─── */
+.nav-item { position: relative; }
+
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: var(--offwhite);
+  border: 1px solid rgba(77, 56, 42, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px -12px rgba(77, 56, 42, 0.18);
+  padding: 14px 0;
+  min-width: 240px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s var(--ease), transform .18s var(--ease), visibility .18s var(--ease);
+  z-index: 95;
+}
+.nav-item:hover > .nav-dropdown,
+.nav-item.is-open > .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-dropdown__title {
+  display: block;
+  padding: 0 20px 14px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(154, 132, 66, 0.18);
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: rgba(154, 132, 66, 0.4);
+}
+
+.nav-dropdown__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.nav-dropdown__list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--brown);
+  white-space: nowrap;
+  position: relative;
+  transition: color .2s var(--ease), transform .2s var(--ease);
+}
+.nav-dropdown__list a::before {
+  content: '';
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width .25s var(--ease);
+}
+.nav-dropdown__list a:hover {
+  color: var(--gold);
+  transform: translateX(4px);
+}
+.nav-dropdown__list a:hover::before { width: 14px; }
+
+/* Score (pontuação SCA) destacado nos cafés */
+.nav-dropdown__list a .score {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* Bullets nas categorias — consistência entre mega-menu e menu rápido */
+.mega-col__list li,
+.nav-dropdown__list li {
+  display: flex;
+  align-items: center;
+}
+.mega-col__list li::before,
+.nav-dropdown__list li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+.nav-dropdown__list li::before { margin-left: 20px; }
+.nav-dropdown__list a { padding-left: 0; flex: 1; }
+
+/* Item especial "Descobrir o meu" — phantom button com identidade IA (desktop nav-dropdown + mobile drawer) */
+.nav-dropdown__list li.is-ai,
+.drawer-cat__list li.is-ai {
+  margin: 6px 16px 4px;
+  align-self: flex-start;     /* impede que o li estique o conteúdo */
+}
+.nav-dropdown__list li.is-ai::before,
+.drawer-cat__list li.is-ai::before {
+  display: none;             /* remove a bolinha */
+}
+.nav-dropdown__list li.is-ai > a,
+.drawer-cat__list li.is-ai > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;            /* sobrescreve flex:1 herdado — encolhe ao conteúdo */
+  width: max-content;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(242, 107, 10, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(242, 107, 10, 0.06),
+    rgba(255, 181, 114, 0.04) 60%,
+    transparent
+  );
+  background-clip: padding-box;
+  box-shadow: 0 0 0 0 rgba(242, 107, 10, 0);
+  transition:
+    border-color .25s var(--ease),
+    background .25s var(--ease),
+    box-shadow .25s var(--ease),
+    transform .2s var(--ease),
+    color .2s var(--ease);
+}
+.nav-dropdown__list li.is-ai > a > span,
+.drawer-cat__list li.is-ai > a > span {
+  background: linear-gradient(135deg, #F26B0A, #FFB572);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-weight: 600;
+}
+.nav-dropdown__list li.is-ai > a::before,
+.drawer-cat__list li.is-ai > a::before {
+  display: none;             /* desativa a barra dourada animada do hover padrão */
+}
+.nav-dropdown__list li.is-ai > a:hover,
+.drawer-cat__list li.is-ai > a:hover {
+  transform: none;
+  border-color: rgba(242, 107, 10, 0.55);
+  background: linear-gradient(
+    135deg,
+    rgba(242, 107, 10, 0.12),
+    rgba(255, 181, 114, 0.08) 60%,
+    transparent
+  );
+  box-shadow: 0 0 16px -4px rgba(242, 107, 10, 0.35);
+}
+.nav-dropdown__list li.is-ai .ia-icon,
+.drawer-cat__list li.is-ai .ia-icon {
+  margin-left: 0;            /* sobrescreve o margin-left default da .ia-icon */
+  width: 14px;
+  height: 14px;
+}
+/* Mobile: o item is-ai não deve ter border-bottom da regra padrão dos sub-items */
+.drawer-cat__list li.is-ai > a {
+  border-bottom: 1px solid rgba(242, 107, 10, 0.25);
+}
+/* Mobile: alinhar phantom button com o início do texto dos demais sub-items (padding-left: 56px) */
+.drawer-cat__list li.is-ai {
+  margin-left: 56px;
+}
+
+.nav-dropdown__list--secondary {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(154, 132, 66, 0.15);
+}
+
+/* ─── Variante editorial — megamenu full width (lista + tiles) ─── */
+.nav-dropdown--media {
+  position: fixed;
+  top: var(--header-visible-h, calc(var(--promo-h) + var(--action-h) + var(--header-h)));
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: var(--offwhite);
+  border: 0;
+  border-top: 1px solid rgba(77, 56, 42, 0.08);
+  border-radius: 0;
+  box-shadow: 0 16px 36px -16px rgba(77, 56, 42, 0.18);
+  padding: 0;
+  min-width: 0;
+  max-width: none;
+  transform: translateY(-8px);
+  transition:
+    opacity .18s var(--ease),
+    transform .18s var(--ease),
+    visibility .18s var(--ease),
+    top .25s var(--ease);
+}
+.nav-dropdown__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 48px var(--pad-x) 56px;
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  column-gap: 80px;
+  align-items: start;
+}
+.nav-dropdown--media .nav-dropdown__lists {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding-top: 80px;
+}
+.nav-dropdown--media .nav-dropdown__features {
+  justify-self: end;
+}
+.nav-dropdown__features {
+  display: grid;
+  gap: 14px;
+  align-items: start;
+}
+.nav-dropdown__features--3 { grid-template-columns: repeat(3, minmax(160px, 275px)); }
+.nav-dropdown__features--2 { grid-template-columns: repeat(2, minmax(200px, 275px)); }
+.nav-dropdown__features--1 { grid-template-columns: minmax(220px, 275px); }
+
+.nav-feature {
+  display: block;
+  text-decoration: none;
+}
+.nav-feature__media {
+  position: relative;
+  aspect-ratio: 275 / 405;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--offwhite);
+  overflow: hidden;
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.nav-feature__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(77, 56, 42, 0.85));
+  pointer-events: none;
+  z-index: 1;
+}
+.nav-feature__media svg {
+  width: 32%; height: 32%;
+  stroke-width: 1.4;
+  position: relative;
+  z-index: 0;
+  opacity: 0.55;
+}
+.nav-feature:hover .nav-feature__media {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px -10px rgba(77, 56, 42, 0.3);
+}
+.nav-feature__title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 16px 18px 22px;
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--offwhite);
+  text-align: left;
+}
+
+/* Gradients temáticos por tile (paleta da marca) */
+.nav-feature__media--brown    { background: linear-gradient(135deg, #4D382A, #7A6832); }
+.nav-feature__media--blend    { background: linear-gradient(135deg, #C45A18, #F79548); }
+.nav-feature__media--frutado  { background: linear-gradient(135deg, #B89E5A, #EAD654); }
+.nav-feature__media--organico { background: linear-gradient(135deg, #6B9952, #A1D07C); }
+.nav-feature__media--moca     { background: linear-gradient(135deg, #6F7DAB, #A3B1DA); }
+.nav-feature__media--gold     { background: linear-gradient(135deg, #7A6832, #B89E5A); }
+.nav-feature__media--bourbon  { background: linear-gradient(135deg, #D86A60, #F58E82); }
+
+/* ─── Dropdown do botão de conta ─── */
+.account-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+/* Desktop: pseudo-element invisível cobre o gap entre o button e o dropdown,
+   evitando que mouseleave dispare durante a travessia do mouse (anti-flicker) */
+@media (min-width: 769px) {
+  .account-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 12px;             /* cobre gap de 6px (header) e 8px (mega-menu) */
+    pointer-events: auto;
+  }
+}
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--offwhite);
+  border: 1px solid rgba(77, 56, 42, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px -12px rgba(77, 56, 42, 0.18);
+  padding: 8px 0;
+  min-width: 220px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s var(--ease), transform .18s var(--ease), visibility .18s var(--ease);
+  z-index: 95;
+}
+.account-wrapper.is-open .account-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.account-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--brown);
+  white-space: nowrap;
+  position: relative;
+  border-bottom: 1px solid rgba(77, 56, 42, 0.06);
+  transition: color .2s var(--ease), transform .2s var(--ease);
+}
+.account-dropdown__item:last-child { border-bottom: 0; }
+.account-dropdown__item::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  bottom: 6px;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width .25s var(--ease);
+}
+.account-dropdown__item:hover {
+  color: var(--gold);
+  transform: translateX(4px);
+}
+.account-dropdown__item:hover::before { width: 14px; }
+.account-dropdown__icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
+  flex-shrink: 0;
+  color: var(--brown);
+}
+
+/* ─── Variante dentro do mega-menu (+ Unique) ─── */
+/* Mantém position:relative no wrapper mesmo em mobile (sobrescreve display:contents da regra mobile via especificidade .account-wrapper.account-wrapper--mega = 0,2,0) */
+.account-wrapper.account-wrapper--mega {
+  position: relative;
+  display: inline-flex;
+}
+/* Dropdown ancorado ao botão dentro da topbar do mega-menu — não cobre o conteúdo */
+.account-wrapper.account-wrapper--mega .account-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  z-index: 210;             /* acima do mega-menu (z-index:200) */
+}
+
+/* Ícones do header */
+.icon-btn {
+  width: 44px; height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--brown);
+  position: relative;
+  transition: background .2s var(--ease);
+}
+.icon-btn:hover { background: rgba(154, 132, 66, 0.08); }
+.icon-btn svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+/* Destaque sutil do ícone de IA — gradient laranja vem do <linearGradient> do SVG */
+.icon-btn--ai svg { stroke-width: 1.9; }
+.icon-btn--ai:hover { background: rgba(242, 107, 10, 0.08); }
+
+/* Ícone IA inline — herda tamanho da fonte; gradient via stroke="url(#...)" */
+.ia-icon {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.4em;
+  stroke-width: 1.9;
+  vertical-align: -0.12em;
+  flex-shrink: 0;
+}
+
+.cart-count {
+  position: absolute;
+  top: 6px; right: 4px;
+  background: var(--gold);
+  color: var(--offwhite);
+  font-family: var(--ff-display);
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo central */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo img {
+  height: 56px;
+  width: auto;
+  transition: opacity .2s var(--ease);
+}
+/* Toggle entre logos: desktop visível por padrão, mobile escondida */
+.logo-img--mobile { display: none; }
+.logo:hover img { opacity: 0.85; }
+
+/* ─── 3.4 BARRA DE BUSCA (inline, expande/colapsa) ─── */
+.search-bar {
+  max-height: 0;
+  overflow: hidden;
+  background: var(--offwhite);
+  transition: max-height .35s var(--ease);
+}
+.search-bar.is-open { max-height: 80px; }
+/* O form interno é transparente pro layout — flex/grid continuam funcionando como antes */
+.search-bar__form {
+  display: contents;
+}
+/* Utility de acessibilidade: visualmente oculto mas legível pra screen readers */
+.screen-reader-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.search-bar__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 16px var(--pad-x);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid var(--brown);
+  padding: 10px 0;
+  font-family: var(--ff-body);
+  font-size: 16px;
+  color: var(--brown);
+  outline: none;
+}
+.search-bar input::placeholder { color: var(--brown-soft); opacity: 0.6; }
+.search-bar__submit {
+  font-family: var(--ff-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 10px 18px;
+  border: 1.5px solid var(--gold);
+  border-radius: var(--radius-pill);
+  transition: all .2s var(--ease);
+}
+.search-bar__submit:hover { background: var(--gold); color: var(--offwhite); }
+
+/* ═══════════════════════════════════════════════════════════
+   4. MEGA MENU (desktop — painel único deslizando do topo)
+   ═══════════════════════════════════════════════════════════ */
+/* Mega menu — overlay full-screen */
+.mega-menu {
+  position: fixed;
+  inset: 0;
+  background: var(--offwhite);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s var(--ease), visibility .35s var(--ease);
+  z-index: 200;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.mega-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Trava scroll do body quando overlay está aberto */
+body.mega-open { overflow: hidden; }
+
+/* Topo do overlay — logo + botão de fechar */
+.mega-menu__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--max-w);
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px var(--pad-x);
+  border-bottom: 1px solid rgba(154, 132, 66, 0.12);
+}
+.mega-menu__logo {
+  display: inline-flex;
+  align-items: center;
+}
+.mega-menu__logo img {
+  height: 48px;
+  width: auto;
+}
+.mega-menu__logo .logo-img--desktop { display: block; }
+.mega-menu__logo .logo-img--mobile { display: none; }
+.mega-menu__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mega-menu__search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(154, 132, 66, 0.06);
+  border: 1px solid rgba(154, 132, 66, 0.18);
+  border-radius: var(--radius-pill);
+  padding: 0 14px 0 38px;
+  height: 38px;
+  width: 240px;
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.mega-menu__search:focus-within {
+  background: var(--offwhite);
+  border-color: var(--gold);
+}
+.mega-menu__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--brown-soft);
+  pointer-events: none;
+}
+.mega-menu__search input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  width: 100%;
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--brown);
+}
+.mega-menu__search input::placeholder { color: var(--brown-soft); }
+.mega-menu__close {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--brown);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background .2s var(--ease), transform .3s var(--ease);
+}
+.mega-menu__close:hover { background: rgba(154, 132, 66, 0.08); }
+.mega-menu__close svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+.mega-menu__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+  padding: 64px var(--pad-x) 56px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 48px;
+  flex: 1;
+}
+
+.mega-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Wrapper individual de cada categoria — permite reordenação independente no mobile */
+.mega-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Cabeçalho de cada categoria — fonte display, com numeração tipo carimbo */
+.mega-col__header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(154, 132, 66, 0.15);
+}
+.mega-col__num {
+  font-family: var(--ff-display);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  color: rgba(154, 132, 66, 0.4);
+  letter-spacing: 0.02em;
+  font-feature-settings: "tnum" 1;
+}
+.mega-col__title {
+  font-family: var(--ff-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brown);
+}
+
+/* Itens clicáveis — fonte body, totalmente diferente da categoria */
+.mega-col__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mega-col__list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--brown);
+  position: relative;
+  transition: color .2s var(--ease), transform .2s var(--ease);
+}
+.mega-col__list a::before {
+  content: '';
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width .25s var(--ease);
+}
+.mega-col__list a:hover {
+  color: var(--gold);
+  transform: translateX(4px);
+}
+.mega-col__list a:hover::before { width: 14px; }
+.mega-col__list a.is-external::after {
+  content: '↗';
+  font-size: 11px;
+  color: var(--gold);
+  margin-left: 2px;
+}
+
+/* Card destaque com foto */
+.mega-feature {
+  grid-column: span 1;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: var(--brown);
+}
+.mega-feature img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .6s var(--ease);
+}
+.mega-feature:hover img { transform: scale(1.05); }
+.mega-feature__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(77, 56, 42, 0.85));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  color: var(--offwhite);
+}
+.mega-feature__tag {
+  font-family: var(--ff-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  margin-bottom: 8px;
+}
+.mega-feature__title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.mega-feature__cta {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mega-feature__cta::after {
+  content: '→';
+  transition: transform .25s var(--ease);
+}
+.mega-feature:hover .mega-feature__cta::after { transform: translateX(4px); }
+
+/* Rodapé do mega menu — 3 blocos horizontais: frase | links | socials */
+.mega-menu__footer {
+  border-top: 1px solid rgba(154, 132, 66, 0.15);
+  padding: 28px var(--pad-x);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+  font-family: var(--ff-body);
+  font-size: 12px;
+  color: var(--brown-soft);
+}
+.mega-menu__footer > :first-child { justify-self: start; }
+.mega-menu__footer > .links { justify-self: center; }
+.mega-menu__footer > .socials { justify-self: end; }
+
+/* Tagline do footer — PP Neue Machina Medium, discreta e elegante */
+.mega-menu__footer-tagline {
+  font-family: var(--ff-display);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brown);
+}
+.mega-menu__footer .links {
+  display: flex;
+  gap: 28px;
+  white-space: nowrap;
+}
+.mega-menu__footer a:hover { color: var(--gold); }
+
+/* Bloco direito do footer — ícones sociais */
+.mega-menu__footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+.mega-menu__footer .socials {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brown);
+  transition: color .2s var(--ease);
+}
+.social-btn:hover { color: var(--gold); }
+.social-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+}
+
+/* Backdrop quando mega menu aberto */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(77, 56, 42, 0.4);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all .3s var(--ease);
+  z-index: 90;
+}
+.backdrop.is-open { opacity: 1; visibility: visible; }
+
+/* ─── Blur sutil de fundo ao abrir os menus rápidos (Cafés/Assinatura/Produtos/Rota) ─── */
+.nav-blur {
+  position: fixed;
+  top: var(--header-visible-h, calc(var(--promo-h) + var(--action-h) + var(--header-h)));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(77, 56, 42, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s var(--ease), visibility .25s var(--ease), top .25s var(--ease);
+  z-index: 80;
+}
+/* Trigger CSS-only: quando qualquer .nav-item estiver com hover ou aberto */
+body:has(.main-header__center .nav-item:hover) .nav-blur,
+body:has(.main-header__center .nav-item.is-open) .nav-blur {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ─── Estado compacto ao rolar a página ─── */
+/* Promo-bar e action-bar colapsam fluidamente; main-header reduz altura, paddings, logo e espaçamentos.
+   O padding-top do body (offwhite) cobre o buffer visual entre header compacto e o conteúdo. */
+.promo-bar,
+.action-bar {
+  transition:
+    max-height .3s var(--ease),
+    padding-top .25s var(--ease),
+    padding-bottom .25s var(--ease),
+    opacity .2s var(--ease),
+    visibility .3s var(--ease);
+}
+.site-header.is-scrolled .promo-bar,
+.site-header.is-scrolled .action-bar {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+.site-header.is-scrolled .main-header {
+  height: 64px;
+}
+.site-header.is-scrolled .logo img {
+  height: 36px;
+}
+.site-header.is-scrolled .menu-trigger {
+  padding: 10px 12px;
+}
+.site-header.is-scrolled .nav-link {
+  padding: 10px 12px;
+}
+.site-header.is-scrolled .icon-btn {
+  width: 38px;
+  height: 38px;
+}
+.site-header.is-scrolled .main-header__center {
+  gap: 2px;
+}
+.site-header.is-scrolled .main-header__left,
+.site-header.is-scrolled .main-header__right {
+  gap: 2px;
+}
+/* Garantir nenhuma quebra em duas linhas em qualquer largura */
+.nav-link,
+.menu-trigger {
+  white-space: nowrap;
+}
+.logo img {
+  transition: height .25s var(--ease);
+}
+.menu-trigger,
+.nav-link,
+.icon-btn {
+  transition:
+    padding .25s var(--ease),
+    width .25s var(--ease),
+    height .25s var(--ease),
+    background .2s var(--ease);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. DRAWER MOBILE
+   ═══════════════════════════════════════════════════════════ */
+.drawer {
+  position: fixed;
+  top: 0; left: 0;
+  width: min(420px, 100%);
+  height: 100vh;
+  background: var(--offwhite);
+  z-index: 110;
+  transform: translateX(-100%);
+  transition: transform .4s var(--ease);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 0 40px rgba(77, 56, 42, 0.2);
+}
+.drawer.is-open { transform: translateX(0); }
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(154, 132, 66, 0.15);
+}
+.drawer__header img { height: 36px; }
+.drawer__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.drawer__header-actions .icon-btn {
+  width: 40px;
+  height: 40px;
+}
+.drawer__close {
+  width: 40px; height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brown);
+}
+.drawer__close svg { width: 22px; height: 22px; }
+
+.drawer__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.drawer-cat {
+  border-bottom: 1px solid rgba(77, 56, 42, 0.06);
+}
+.drawer-cat__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 24px;
+  font-family: var(--ff-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brown);
+  text-align: left;
+  transition: background .2s var(--ease);
+}
+.drawer-cat__header:hover { background: rgba(154, 132, 66, 0.05); }
+.drawer-cat__num {
+  font-size: 10px;
+  color: var(--gold);
+  margin-right: 12px;
+}
+.drawer-cat__chevron {
+  margin-left: auto;
+  transition: transform .3s var(--ease);
+}
+.drawer-cat.is-open .drawer-cat__chevron { transform: rotate(180deg); }
+
+.drawer-cat__list {
+  list-style: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s var(--ease);
+  background: var(--offwhite-2);
+}
+.drawer-cat.is-open .drawer-cat__list { max-height: 400px; }
+.drawer-cat__list a {
+  display: block;
+  padding: 14px 24px 14px 56px;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--brown);
+  border-bottom: 1px solid rgba(77, 56, 42, 0.06);
+}
+.drawer-cat__list a:last-child { border-bottom: 0; }
+.drawer-cat__list a:hover { color: var(--gold); }
+
+/* Categoria sem submenu (Blog, Rota) */
+.drawer-cat--link .drawer-cat__chevron { display: none; }
+
+/* Item "+ Unique" no drawer — abre o overlay full-screen */
+.drawer-cat--unique .drawer-cat__header {
+  color: var(--brown);
+  font-weight: 600;
+}
+.drawer-cat--unique .drawer-cat__header > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.drawer-cat__plus-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--gold);
+}
+
+.drawer__footer {
+  padding: 24px;
+  border-top: 1px solid rgba(154, 132, 66, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.drawer__footer .pill {
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  padding: 14px 24px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.drawer__footer .pill svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .mega-menu__inner { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --pad-x: 20px;
+    --header-h: 72px;
+    --promo-h: 56px;
+  }
+  .action-bar__left { display: none; }
+  .action-bar { justify-content: center; }
+
+  /* Mobile: estado compacto do header — reduz main-header e logo */
+  .site-header.is-scrolled .main-header { height: 56px; }
+  .site-header.is-scrolled .logo img { height: 30px; }
+  .site-header.is-scrolled .menu-trigger,
+  .site-header.is-scrolled .icon-btn { padding: 8px; }
+  .site-header.is-scrolled .icon-btn { width: 36px; height: 36px; }
+
+  /* Mobile: na promo-bar, mostrar carrossel e esconder a frase fixa */
+  .promo-bar__desktop-only { display: none; }
+  /* Os elementos .promo-bar__mobile-only voltam ao display original (grid no viewport, inline-flex nos navs) — ver regras acima */
+  .promo-bar__viewport.promo-bar__mobile-only { display: grid; }
+  .promo-bar__nav.promo-bar__mobile-only { display: inline-flex; }
+
+  /* Pills mobile — maiores, centralizados, melhor padding */
+  .cta-pills { gap: 10px; justify-content: center; }
+  .pill {
+    padding: 10px 22px;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    box-sizing: border-box;
+  }
+  .pill svg { width: 12px; height: 12px; }
+  .pill--secondary { border-width: 1px; }
+
+  /* Promo-bar mobile — altura adaptável: segue o conteúdo, sem corte */
+  .promo-bar {
+    height: auto;
+    min-height: var(--promo-h);
+    padding: 8px 4px;
+    line-height: 1.35;
+  }
+  .promo-bar__viewport {
+    display: grid;
+    width: min(640px, 82vw);
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+  .promo-bar__slide {
+    position: relative;
+    inset: auto;
+    grid-area: 1 / 1;
+    white-space: normal;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 0 4px;
+    gap: 6px;
+  }
+
+  .menu-trigger > span:not(.bars) { display: none; }
+  .menu-trigger .menu-trigger__icon { display: none; }
+  .menu-trigger .bars { display: inline-flex; }
+  .menu-trigger { padding: 14px 12px; gap: 0; }
+  /* Mobile: tooltip do + Unique não aparece */
+  .menu-trigger-tooltip { display: none; }
+  .logo img { height: 44px; }
+  .logo .logo-img--desktop { display: none; }
+  .logo .logo-img--mobile { display: block; }
+  .icon-btn { width: 40px; height: 40px; }
+
+  /* Mobile: esconder os nav-items soltos do header — toda navegação vai pro drawer */
+  .main-header__center .nav-item { display: none; }
+  .main-header__center { gap: 0; justify-content: flex-end; }
+
+  /* ─── Reorganização do header mobile ───
+     Esquerda: hamburger + busca | Centro: logo (absoluta) | Direita: carrinho + conta
+     Estratégia: dissolver os 3 wrappers via display:contents pra que os
+     ícones virem flex items diretos do main-header. A logo fica absoluta
+     no centro; o searchTrigger ganha margin-right:auto pra empurrar os
+     próximos botões pro lado direito. */
+  .main-header {
+    display: flex;
+    grid-template-columns: none;
+    align-items: center;
+    padding: 0 12px;
+    position: relative;
+    gap: 2px;
+  }
+  .main-header__left,
+  .main-header__center,
+  .main-header__right {
+    display: contents;
+  }
+  /* Ordem visual: hamburger (1), busca (2), logo (3, absoluta), carrinho (4), conta (5) */
+  .menu-trigger  { order: 1; }
+  #searchTrigger { order: 2; margin-right: auto; }
+  .logo {
+    order: 3;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+  }
+  .main-header__right .icon-btn[aria-label="Carrinho"]    { order: 4; }
+  .main-header__right .icon-btn[aria-label="Minha conta"] { order: 5; }
+  /* Esconder o ícone de IA do header no mobile (passa a viver no drawer) */
+  .main-header__right .icon-btn--ai { display: none; }
+  /* Mobile: dissolver wrapper no flex layout do header (preserva ordem dos botões) */
+  .account-wrapper { display: contents; }
+  /* Mobile: dropdown reposicionado em fixed (porque o wrapper foi dissolvido e perdeu a função de âncora) */
+  .account-dropdown {
+    position: fixed;
+    top: calc(var(--promo-h) + var(--action-h) + var(--header-h) + 12px);
+    right: var(--pad-x);
+    left: auto;
+    min-width: 240px;
+    padding: 6px 0;
+  }
+  .account-dropdown__item {
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+  .account-dropdown__item::before { left: 18px; bottom: 8px; }
+  .account-dropdown__icon { width: 18px; height: 18px; }
+
+  /* Mega-menu overlay full-screen adaptado pro mobile */
+  .mega-menu__inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 32px var(--pad-x) 40px;
+  }
+  .mega-menu__topbar { padding: 16px var(--pad-x); }
+  .mega-menu__logo img { height: 40px; }
+  .mega-menu__logo .logo-img--desktop { display: none; }
+  .mega-menu__logo .logo-img--mobile { display: block; }
+  .mega-menu__search { display: none; }
+  .mega-feature { display: none; }
+
+  /* Mobile: dissolver as 3 colunas do mega-menu para que cada categoria vire item direto do grid e possa ser reordenada via order */
+  .mega-col { display: contents; }
+  /* Anular margin-top inline das categorias 2ª+ (existia pra separar dentro da mesma coluna desktop) — no mobile o gap do grid já cuida do espaçamento */
+  .mega-cat .mega-col__header { margin-top: 0 !important; }
+  /* Ordem prioritária no mobile: Cafés → Assinatura → Rota → Revenda → Produtos → Aprender → Blog */
+  .mega-cat--cafes      { order: 1; }
+  .mega-cat--assinatura { order: 2; }
+  .mega-cat--rota       { order: 3; }
+  .mega-cat--revenda    { order: 4; }
+  .mega-cat--produtos   { order: 5; }
+  .mega-cat--aprender   { order: 6; }
+  .mega-cat--blog       { order: 7; }
+
+  /* Footer do overlay empilha em mobile */
+  .mega-menu__footer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 24px var(--pad-x);
+    text-align: center;
+  }
+  .mega-menu__footer > :first-child,
+  .mega-menu__footer > .links,
+  .mega-menu__footer > .socials { justify-self: center; }
+  .mega-menu__footer .links { flex-wrap: wrap; justify-content: center; gap: 16px 20px; }
+}
+
+@media (max-width: 480px) {
+  .promo-bar { font-size: 11px; }
+  .promo-bar a { padding: 3px 8px; font-size: 10px; }
+  .promo-bar__nav { width: 20px; }
+  .action-bar { padding: 0 12px; }
+  .cta-pills { gap: 8px; }
+  .pill { padding: 9px 18px; font-size: 10px; letter-spacing: 0.07em; }
+  .pill svg { width: 11px; height: 11px; }
+}
+
+
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  PARTE 2 DE 2: PATCH CSS (FIXES) — FIX 17 REMOVIDO                ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+/* ═══════════════════════════════════════════════════════════
+   UNIQUE HEADER — PATCH 01
+   ───────────────────────────────────────────────────────────
+   Correções cirúrgicas para problemas de conflito com Divi.
+   Cole este bloco LOGO DEPOIS do CSS principal (mesmo campo
+   "Divi → Opções do Tema → CSS Personalizado") — ele depende
+   da ordem para sobrescrever as regras conflitantes.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── FIX 1: Logos duplicadas ───
+   O Divi força "display: block" em <img> dentro de módulos.
+   Aumentamos a especificidade combinando 3 classes + !important
+   APENAS nas regras de display (não no resto), pra garantir
+   que só a logo certa apareça em cada breakpoint. */
+.site-header .logo .logo-img--mobile { display: none !important; }
+.site-header .logo .logo-img--desktop { display: block !important; }
+@media (max-width: 768px) {
+  .site-header .logo .logo-img--desktop { display: none !important; }
+  .site-header .logo .logo-img--mobile  { display: block !important; }
+}
+/* Mesmo tratamento no mega-menu (topbar dele tem as duas logos também) */
+.mega-menu .mega-menu__logo .logo-img--mobile { display: none !important; }
+.mega-menu .mega-menu__logo .logo-img--desktop { display: block !important; }
+@media (max-width: 768px) {
+  .mega-menu .mega-menu__logo .logo-img--desktop { display: none !important; }
+  .mega-menu .mega-menu__logo .logo-img--mobile  { display: block !important; }
+}
+
+/* ─── FIX 2: Cor de texto nos pills (QUERO REVENDER / ONDE ENCONTRAR) ───
+   O Divi sobrescreve "color" em <a> com a cor de link do tema.
+   Forçamos as cores corretas da marca. */
+.site-header .pill--primary,
+.site-header a.pill--primary,
+.drawer .pill--primary,
+.drawer a.pill--primary {
+  background-color: var(--gold) !important;
+  color: var(--offwhite) !important;
+  border: none !important;
+}
+.site-header .pill--primary:hover,
+.site-header a.pill--primary:hover,
+.drawer .pill--primary:hover {
+  background-color: var(--gold-deep) !important;
+  color: var(--offwhite) !important;
+}
+
+.site-header .pill--secondary,
+.site-header a.pill--secondary,
+.drawer .pill--secondary,
+.drawer a.pill--secondary {
+  background-color: transparent !important;
+  color: var(--brown) !important;
+  border: 1.5px solid var(--brown) !important;
+}
+.site-header .pill--secondary:hover,
+.site-header a.pill--secondary:hover,
+.drawer .pill--secondary:hover {
+  background-color: var(--brown) !important;
+  color: var(--offwhite) !important;
+}
+
+/* SVG dentro dos pills herda a cor do <a>, garantir que stroke siga */
+.site-header .pill svg,
+.drawer .pill svg { stroke: currentColor !important; }
+
+/* ─── FIX 3: Cor dos links de navegação (CAFÉS, ASSINATURA, etc.) ───
+   Mesmo problema: o Divi puxa cor de link do tema. */
+.site-header .nav-link,
+.site-header a.nav-link {
+  color: var(--brown) !important;
+}
+.site-header .nav-link:hover,
+.site-header a.nav-link:hover {
+  color: var(--gold-deep) !important;
+  background: rgba(154, 132, 66, 0.08) !important;
+}
+
+/* ─── FIX 4: Cor dos ícones do header (busca, carrinho, conta) ───
+   Os <button>/<a> com classe .icon-btn devem ter ícone marrom. */
+.site-header .icon-btn,
+.site-header a.icon-btn,
+.site-header button.icon-btn {
+  color: var(--brown) !important;
+}
+.site-header .icon-btn svg { stroke: currentColor; }
+/* O ícone da IA mantém o gradiente próprio — não sobrescrever */
+.site-header .icon-btn--ai svg { stroke: url(#ai-gradient) !important; }
+
+/* ─── FIX 5: Cor dos links do mega-menu e do drawer mobile ───
+   Para os listings de produtos/categorias não virem laranja. */
+.mega-menu a,
+.mega-menu .mega-col__list a,
+.mega-menu .mega-col__title {
+  color: var(--brown) !important;
+}
+.mega-menu a:hover {
+  color: var(--gold-deep) !important;
+}
+
+.drawer a,
+.drawer .drawer__item,
+.drawer .drawer__list a {
+  color: var(--brown) !important;
+}
+
+/* ─── FIX 6: Underline do Divi em links ───
+   Divi às vezes coloca text-decoration: underline em <a>. */
+.site-header a,
+.mega-menu a,
+.drawer a { text-decoration: none !important; }
+
+/* ─── FIX 7: Forçar a tipografia da marca nos textos do header ───
+   Divi pode aplicar font-family global. */
+.site-header,
+.site-header *:not(svg):not(svg *),
+.mega-menu,
+.mega-menu *:not(svg):not(svg *),
+.drawer,
+.drawer *:not(svg):not(svg *) {
+  font-family: var(--ff-body);
+}
+.site-header .display,
+.site-header .nav-link,
+.site-header .pill,
+.site-header .logo-text,
+.mega-menu .display,
+.mega-menu .mega-col__title,
+.mega-menu .mega-col__num,
+.drawer .display,
+.drawer .pill {
+  font-family: var(--ff-display);
+}
+
+/* ─── FIX 8: Drawer mobile (topo com logo + IA + X) ───
+   O topo do drawer (.drawer__header) estava sumindo no Divi:
+   - A <img> da logo era escondida ou redimensionada para zero
+   - Os <button> do IA e do X estavam invisíveis (Divi aplica reset próprio)
+   Forçamos display, dimensões e visibilidade explicitamente. */
+
+.drawer .drawer__header,
+.drawer > .drawer__header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid rgba(154, 132, 66, 0.15) !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+/* Logo da Unique no topo do drawer */
+.drawer .drawer__header img,
+.drawer .drawer__header > img {
+  display: block !important;
+  height: 36px !important;
+  width: auto !important;
+  max-width: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Grupo direito: ícone IA + X de fechar */
+.drawer .drawer__header-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  visibility: visible !important;
+}
+
+/* Botões IA e X — Divi geralmente reseta <button>, forçamos as dimensões */
+.drawer .drawer__header-actions .icon-btn,
+.drawer .drawer__header-actions button.icon-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* X de fechar — cor da seta */
+.drawer .drawer__close,
+.drawer button.drawer__close {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--brown) !important;
+  cursor: pointer !important;
+}
+.drawer .drawer__close svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+  stroke: currentColor !important;
+}
+
+/* SVG do ícone IA mantém o gradient próprio (não sobrescrever stroke) */
+.drawer .drawer__header-actions .icon-btn--ai svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+  stroke: url(#ai-gradient-drawer) !important;
+}
+
+/* ─── FIX 9: FONTES PP Neue Machina Inktrap ───
+   As fontes ja estao hospedadas no servidor da Unique (instaladas no Divi do
+   site EAD - /wp-content/uploads/et-fonts/).
+   Usamos crossorigin=anonymous via CSS para evitar problemas de CORS, ja que
+   o site principal (uniquecafes.com.br) faz requisicao cross-origin pro
+   subdominio ead.
+
+   Variantes carregadas: Bold (700) e Medium (500), que sao as duas usadas
+   no protótipo. Light/Regular caem em fallback se nao existirem.
+
+   Se alguma URL dessas retornar 404, basta:
+   1. Confirmar o nome exato do arquivo na pasta et-fonts via FTP
+   2. Ajustar o nome na regra @font-face correspondente
+*/
+
+
+/* Halyard Text Light — fonte do CORPO (subitens do menu, links das categorias) */
+
+/* Atualizar a variavel --ff-display para usar a fonte da marca */
+.site-header, .mega-menu, .drawer {
+  --ff-display: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif !important;
+  --ff-body: 'Halyard Text', 'Manrope', system-ui, sans-serif !important;
+}
+
+/* Aplicar a fonte de corpo (Halyard Text Light) onde --ff-body é usado:
+   subitens dos megamenu, links das categorias do drawer mobile, descrições */
+.mega-menu .mega-col__list a,
+.mega-menu .nav-feature__title,
+.mega-menu .nav-feature__desc,
+.drawer .drawer-cat__list a,
+.drawer .drawer-cat__list,
+.site-header .nav-dropdown__title,
+.site-header .nav-dropdown__desc {
+  font-family: 'Halyard Text', 'Manrope', system-ui, sans-serif !important;
+  font-weight: 300 !important;
+}
+
+/* Reforco em todos os lugares que usam font-display: */
+.site-header .display, .site-header .nav-link, .site-header .pill, .site-header .logo-text,
+.mega-menu .display, .mega-menu .mega-col__title, .mega-menu .mega-col__num,
+.drawer .drawer-cat__header, .drawer .display, .drawer .pill {
+  font-family: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif !important;
+  font-weight: 700 !important;
+}
+
+
+/* ─── FIX 10: Drawer mobile — espaçamento, fonte e chevron ───
+   O Divi sobrescreve padding/font de <button>, e <svg> pode ser
+   "esmagado" pelo CSS dele. Reforcamos o estilo do header de
+   cada categoria do drawer mobile. */
+
+.drawer .drawer-cat {
+  border-bottom: 1px solid rgba(77, 56, 42, 0.06) !important;
+}
+
+.drawer .drawer-cat__header,
+.drawer button.drawer-cat__header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 18px 24px !important;
+  font-family: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: var(--brown) !important;
+  text-align: left !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  line-height: 1.4 !important;
+}
+.drawer .drawer-cat__header:hover {
+  background: rgba(154, 132, 66, 0.05) !important;
+}
+
+/* O chevron SVG estava sumindo ou sendo esmagado. Forcar dimensoes. */
+.drawer .drawer-cat__chevron,
+.drawer svg.drawer-cat__chevron {
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  transition: transform .3s var(--ease) !important;
+}
+.drawer .drawer-cat.is-open .drawer-cat__chevron {
+  transform: rotate(180deg) !important;
+}
+
+/* Itens das categorias (links dentro de cada acordeon) */
+.drawer .drawer-cat__list {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.drawer .drawer-cat__list a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 32px !important;
+  color: var(--brown) !important;
+  font-size: 14px !important;
+  font-family: var(--ff-body) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(77, 56, 42, 0.04) !important;
+}
+.drawer .drawer-cat__list li:last-child a {
+  border-bottom: 0 !important;
+}
+.drawer .drawer-cat__list a:hover {
+  color: var(--gold) !important;
+}
+
+/* Categoria "+UNIQUE" no drawer (estilo especial com prefixo +) */
+.drawer .drawer-cat--unique .drawer-cat__header {
+  color: var(--brown) !important;
+  font-weight: 600 !important;
+}
+
+
+/* ─── FIX 11: Botao +UNIQUE no desktop ───
+   O botao do mega menu trigger e <button class="menu-trigger"> com
+   um <span>Unique</span> dentro. O "+" e um SVG (.menu-trigger__icon)
+   antes do texto. Sem a fonte display, o texto saia em Halyard. */
+
+.site-header .menu-trigger,
+.site-header button.menu-trigger,
+.site-header .menu-trigger span:not(.bars):not(.bars span) {
+  font-family: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* ─── FIX 12: Espaco fantasma das barras superiores no mobile ao rolar ───
+   No protótipo, .is-scrolled colapsa .promo-bar e .action-bar com max-height:0,
+   opacity:0, visibility:hidden. No Divi mobile, a regra base "height: 44px"
+   da .promo-bar vence o max-height:0 do estado scrolled, deixando um espaco
+   vazio. Forcamos height:0 explicito quando is-scrolled. */
+
+.site-header.is-scrolled .promo-bar,
+.site-header.is-scrolled .action-bar {
+  height: 0 !important;
+  max-height: 0 !important;
+  min-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+  border: 0 !important;
+}
+
+
+/* ─── FIX 13: Botao "CLIQUE AQUI" da promo-bar com texto branco ───
+   O Divi sobrescreve color do <a> com a cor de link do tema (laranja).
+   Forcamos branco/offwhite sobre o fundo dourado. */
+
+.site-header .promo-bar a,
+.site-header .promo-bar a:link,
+.site-header .promo-bar a:visited {
+  color: var(--offwhite) !important;
+  background: var(--gold) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+}
+.site-header .promo-bar a:hover {
+  background: var(--gold-soft) !important;
+  color: var(--brown) !important;
+}
+
+
+/* ─── FIX 14: +UNIQUE com mesmo tamanho dos demais itens do menu desktop ───
+   No protótipo, .nav-link e .menu-trigger compartilham font-size: 12px.
+   O Divi aplica font-size maior em <button>, fazendo o +UNIQUE virar gigante.
+   Forcamos o tamanho identico aos vizinhos. */
+
+.site-header .menu-trigger,
+.site-header button.menu-trigger,
+.site-header .menu-trigger > span:not(.bars),
+.site-header .menu-trigger span:not(.bars):not(.bars span) {
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+/* Quando o header esta no modo compacto (scrolled), tambem manter alinhado */
+.site-header.is-scrolled .menu-trigger,
+.site-header.is-scrolled .menu-trigger > span:not(.bars) {
+  font-size: 12px !important;
+}
+
+
+/* ─── FIX 16: Elementos flutuantes do header (mega menu, blur, dropdowns) ───
+   Divi 4 dentro do Theme Builder envolve o modulo Code em wrappers que podem
+   ter transform/filter/will-change. Essas propriedades quebram position:fixed
+   (transformam em position:absolute relativo ao wrapper), fazendo o mega-menu
+   e o nav-blur ocuparem espaco no layout em vez de flutuarem.
+
+   Solucao em duas frentes:
+   (a) Forcar position:fixed nos elementos que precisam flutuar viewport-wide
+   (b) Garantir que os wrappers parent do Divi nao apliquem transform/filter
+
+   Se mesmo assim continuar ocupando espaco, ver FIX 17 (JS) abaixo. */
+
+.mega-menu,
+.site-header ~ .mega-menu,
+body > .mega-menu,
+#et-main-area .mega-menu {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+}
+
+.nav-blur,
+.site-header ~ .nav-blur,
+body > .nav-blur,
+#et-main-area .nav-blur {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 80 !important;
+}
+
+/* Drawer mobile e dropdowns dos itens do header (CAFÉS, ASSINATURA, etc) */
+.drawer {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 250 !important;
+}
+
+/* Dropdown padrao (variante pequena, ancorada no nav-item).
+   NAO mira .nav-dropdown--media (megamenu fullwidth) que tem position: fixed */
+.nav-dropdown:not(.nav-dropdown--media) {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  z-index: 110 !important;
+}
+
+/* Variante editorial: megamenu fullwidth dos itens CAFÉS, ASSINATURA, PRODUTOS, ROTA DO CAFÉ.
+   Deve ocupar a largura total da viewport, ancorado abaixo do header. */
+.nav-dropdown--media {
+  position: fixed !important;
+  top: var(--header-visible-h, calc(var(--promo-h, 44px) + var(--action-h, 60px) + var(--header-h, 88px))) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 110 !important;
+}
+/* No estado scrolled (header compacto), ajustar o top automaticamente */
+.site-header.is-scrolled .nav-dropdown--media {
+  top: var(--header-visible-h, 64px) !important;
+}
+
+/* Remover transform/filter/will-change dos wrappers do Divi que poderiam quebrar
+   o position:fixed dos filhos. Aplica-se apenas no wrapper do nosso header. */
+.et_pb_section:has(.site-header),
+.et_pb_section:has(.mega-menu),
+.et_pb_row:has(.site-header),
+.et_pb_row:has(.mega-menu),
+.et_pb_column:has(.site-header),
+.et_pb_column:has(.mega-menu),
+.et_pb_code:has(.site-header),
+.et_pb_code:has(.mega-menu) {
+  transform: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  will-change: auto !important;
+  perspective: none !important;
+  -webkit-transform: none !important;
+  contain: none !important;
+}
+
+
+/* ─── FIX 17: REATIVADO em 05/06/2026 ────────────────────────────────
+   Reserva o espaco do header fixo (~192px) no fluxo da pagina, pra que
+   o conteudo de TODAS as paginas (nao so a de produto) comece abaixo
+   do header. O calculo soma as 3 barras via variaveis, entao se a
+   altura de qualquer uma mudar, a reserva se ajusta sozinha.
+
+   NOTA: o "espaco branco extra" que aparecia antes era a barra de admin
+   do WordPress (#wpadminbar, 32px), visivel SO para usuario logado no
+   painel. Para o cliente final nao aparece. Por isso o fix esta correto. */
+.et-l--header,
+#et-boc .et-l--header {
+  min-height: calc(var(--promo-h, 44px) + var(--action-h, 60px) + var(--header-h, 88px)) !important;
+}
+
+/* Garantir que a .uc-header-host (e wrappers internos) nao adicionem altura propria.
+   Eles devem ser apenas containers transparentes para o nosso CSS. */
+.uc-header-host,
+.uc-header-host .et_pb_row,
+.uc-header-host .et_pb_column,
+.uc-header-host .et_pb_code,
+.uc-header-host .et_pb_code_inner {
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* No Visual Builder do Divi, desabilitar o min-height pra nao atrapalhar a edicao */
+body.et-fb #et-boc > .et-l--header,
+body.et-fb .et-l.et-l--header,
+body.et-bfb #et-boc > .et-l--header,
+body.et-bfb .et-l.et-l--header {
+  min-height: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VISIBILIDADE POR ESTADO DE LOGIN (adicionado 05/06/2026)
+   ───────────────────────────────────────────────────────────
+   O WordPress poe a classe `logged-in` no <body> para qualquer
+   usuario autenticado (cliente, assinante, admin). Usamos isso
+   para alternar itens do menu da conta:
+     - nao logado  -> "Entrar / Cadastrar"  (.uc-only-logged-out)
+     - logado      -> "Minha Conta"         (.uc-only-logged-in)
+   Os itens .account-dropdown__item usam display:flex, por isso
+   o estado visivel volta como flex.
+   ═══════════════════════════════════════════════════════════ */
+.uc-only-logged-in,
+.uc-only-logged-out {
+  display: none !important;
+}
+body:not(.logged-in) .uc-only-logged-out {
+  display: flex !important;
+}
+body.logged-in .uc-only-logged-in {
+  display: flex !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   CORREÇÕES PORTADAS DO EAD (06/06/2026)
+   ───────────────────────────────────────────────────────────────────
+   Comparamos o HTML do principal com o do EAD: a estrutura de tags é
+   idêntica (sem diferença mecânica). Os bugs corrigidos no EAD eram
+   todos de CSS. Trazemos aqui os 3 fixes GENÉRICOS (válidos em Divi 4).
+   FIX 19 e 23 NÃO entram: são específicos de Divi 5 (o principal já
+   reserva altura pelo FIX 17 reativado acima).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── FIX 20: Ordem natural dos blocos do +UNIQUE no mobile ───────────
+   O CSS base (linhas ~1671-1677) aplica `order` às .mega-cat no mobile
+   numa sequência comercial (1=Cafés, 2=Assinatura, 3=Rota...) diferente
+   da numeração visual 01-07 do HTML. Resultado: o usuário vê os números
+   01, 04, 05, 06, 03, 02, 07 — fora de ordem. Aqui restauramos a ordem
+   natural do HTML (01→07). */
+@media (max-width: 768px) {
+  .mega-cat--cafes,
+  .mega-cat--aprender,
+  .mega-cat--produtos,
+  .mega-cat--assinatura,
+  .mega-cat--rota,
+  .mega-cat--revenda,
+  .mega-cat--blog {
+    order: initial !important;
+  }
+}
+
+/* ─── FIX 21: Botão "Pesquisar" — blindar contra o Divi ───────────────
+   O Divi injeta regras genéricas em <button> (et_pb_button_helper_class,
+   et_button_no_icon) que sobrescrevem padding/background, fazendo o hover
+   preencher só a área do texto. Blindamos com especificidade + !important. */
+html body .site-header .search-bar__submit,
+html body #et-boc .search-bar__submit {
+  font-family: var(--ff-display) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--gold) !important;
+  padding: 10px 18px !important;
+  border: 1.5px solid var(--gold) !important;
+  border-radius: var(--radius-pill) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  cursor: pointer !important;
+  transition: background-color .2s var(--ease), color .2s var(--ease) !important;
+}
+html body .site-header .search-bar__submit:hover,
+html body .site-header .search-bar__submit:focus,
+html body #et-boc .search-bar__submit:hover,
+html body #et-boc .search-bar__submit:focus {
+  background-color: var(--gold) !important;
+  color: var(--offwhite) !important;
+}
+
+/* ─── FIX 22: Dropdown da conta no mobile quando sticky ───────────────
+   No mobile o .account-dropdown usa top = soma das 3 barras (estado
+   normal). Quando o header fica sticky, promo-bar e action-bar somem mas
+   o cálculo continua somando elas, jogando o dropdown longe do botão.
+   Usamos --header-visible-h, que o CSS base mantém atualizada conforme
+   o estado (normal: soma tudo; sticky: 56px mobile / 64px desktop). */
+@media (max-width: 768px) {
+  .account-dropdown {
+    top: calc(var(--header-visible-h) + 12px) !important;
+  }
+}
