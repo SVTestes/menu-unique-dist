@@ -2191,6 +2191,20 @@ body > .nav-blur,
   contain: none !important;
 }
 
+/* ─── FIX 24: títulos das categorias do drawer mobile em PP Neue Bold ───
+   Os títulos (CURSOS ONLINE, CAFÉS, ASSINATURA, + UNIQUE) ficam num <span>
+   dentro de <button class="drawer-cat__header">. Resets de <button>/<span> do
+   Divi (4/5) derrubavam o texto pra fonte do sistema no mobile. Reforço com
+   especificidade alta (html body / #et-boc), mirando o botão E o <span>. */
+html body .drawer .drawer-cat__header,
+html body .drawer .drawer-cat__header > span,
+html body .drawer .drawer-cat--unique .drawer-cat__header > span,
+#et-boc .drawer .drawer-cat__header,
+#et-boc .drawer .drawer-cat__header > span,
+#et-boc .drawer .drawer-cat--unique .drawer-cat__header > span {
+  font-family: 'PP Neue Machina Inktrap', 'Syne', system-ui, sans-serif !important;
+  font-weight: 700 !important;
+}
 
 /* ─── FIX 17: REMOVIDO em 17/05/2026 ─────────────────────────────────
    O FIX 17 antigo forçava min-height de 192px no .et-l--header pra
