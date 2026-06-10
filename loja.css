@@ -2206,6 +2206,33 @@ html body .drawer .drawer-cat--unique .drawer-cat__header > span,
   font-weight: 700 !important;
 }
 
+
+/* ─── FIX 25: "X fantasma" do drawer no header sticky mobile (bug §9 handoff) ───
+   O botão de fechar (.drawer__close) vazava como um "X" no topo do header quando
+   o drawer estava fechado, e não aparecia ao abrir. Em vez de confiar só no
+   translateX(-100%) (que algum wrapper do Divi pode neutralizar), garantimos que
+   o drawer fechado fique REALMENTE oculto (visibility/pointer-events) e que o X
+   só exista com o drawer aberto. A visibility é adiada .4s no fechar pra manter
+   a animação de slide. */
+.drawer {
+  transition: transform .4s var(--ease), visibility 0s linear .4s !important;
+}
+.drawer:not(.is-open) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.drawer.is-open {
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transition: transform .4s var(--ease), visibility 0s linear 0s !important;
+}
+.drawer:not(.is-open) .drawer__close {
+  visibility: hidden !important;
+}
+.drawer.is-open .drawer__close {
+  display: inline-flex !important;
+  visibility: visible !important;
+}
 /* ─── FIX 17: REATIVADO em 05/06/2026 ────────────────────────────────
    Reserva o espaco do header fixo (~192px) no fluxo da pagina, pra que
    o conteudo de TODAS as paginas (nao so a de produto) comece abaixo
