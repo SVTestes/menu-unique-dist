@@ -2266,51 +2266,42 @@ body.et-bfb .et-l.et-l--header {
 }
 
 /* ============================================================
-   UNIQUE HEADER — EXTRAS PARA EAD
-   Data: 2026-05-27
+   UNIQUE HEADER — EXTRAS PARA B2B (Divi 5)
+   Data: 2026-05-29 · dedup: 2026-06-26
    ------------------------------------------------------------
-   Anexar este CSS LOGO APÓS o patch principal em:
-   Divi → Opções do Tema → Personalizar → CSS Personalizado.
-   
-   ORDEM DE COLAGEM no campo CSS Personalizado:
-   1. unique-header-divi.css (CSS principal)
-   2. unique-header-patch.css (FIX 1-18)
-   3. unique-header-EAD-extras.css (este arquivo)
+   Este "rabo" contém SÓ o que diverge do shared/header-base.css
+   pro B2B. Inclui os FIX 19-23 (Divi 5, iguais ao EAD, mas com a
+   reserva de altura ajustada pro B2B que não tem promo-bar) e os
+   blocos exclusivos do B2B (promo-bar zerada, mega-menu em 2
+   setores e drawer com <a> direto).
+
+   Histórico: antes deste arquivo trazia o tail do EAD inteiro
+   colado + os extras do B2B, duplicando login/FIX 19/21/22/23.
+   A duplicação foi removida sem mudar o comportamento renderizado.
    ============================================================ */
 
 
 /* ============================================================
    CONTROLE DE VISIBILIDADE POR ESTADO DE LOGIN
    ------------------------------------------------------------
-   O WordPress adiciona automaticamente a classe `logged-in`
-   ao <body> quando o usuário está autenticado. Usamos isso
-   para mostrar/esconder elementos sem precisar de PHP.
+   O WordPress adiciona automaticamente `logged-in` ao <body>
+   quando o usuário está autenticado. Usamos isso pra mostrar
+   "Quero Revender" só pra não-logados (revendedor não precisa
+   ver CTA pra virar revendedor).
    ============================================================ */
 
-/* Esconde por padrão TODOS os elementos condicionais */
 .uc-only-logged-in,
 .uc-only-logged-out {
   display: none !important;
 }
 
-/* Visitante NÃO logado → mostra apenas elementos uc-only-logged-out */
 body:not(.logged-in) .uc-only-logged-out {
   display: flex !important;
 }
 
-/* Usuário LOGADO → mostra apenas elementos uc-only-logged-in */
 body.logged-in .uc-only-logged-in {
   display: flex !important;
 }
-
-
-/* ============================================================
-   AJUSTE: action-bar do EAD com apenas 1 pill
-   ------------------------------------------------------------
-   No EAD, a action bar só tem "Área do Aluno" (visível quando
-   logado). Quando deslogado, a área do .cta-pills fica vazia.
-   Garantimos que isso não quebre o layout flex da .action-bar.
-   ============================================================ */
 
 .action-bar .cta-pills {
   min-height: 32px; /* mantém altura mesmo quando vazia */
@@ -2318,30 +2309,38 @@ body.logged-in .uc-only-logged-in {
 
 
 /* ============================================================
-   FIX 19 (Divi 5): Reserva de espaço do header no EAD
+   B2B-1: Zerar a altura da promo-bar
    ------------------------------------------------------------
-   O FIX 17 do patch foi escrito para Divi 4, em que .et-l--header
-   era um <div>. No Divi 5 (EAD), é uma tag <header> com regras
-   próprias do Divi 5 que vencem nossa especificidade — por isso
-   o min-height do FIX 17 não pega e o wrapper colapsa pra altura
-   natural (que é 0px, já que .site-header é position:fixed).
-   
-   Solução em duas camadas:
-   1) CSS abaixo com seletor de altíssima especificidade (cobre
-      desktop e mobile como fallback) usando uma CSS variable
-      `--uc-real-header-h` que é setada dinamicamente pelo JS
-   2) Snippet PHP `unique-header-height-sync.php` mede a altura
-      real do .site-header e aplica inline no .et-l--header
-      (ganha de qualquer CSS)
-   
-   Se o JS estiver desligado, o fallback abaixo garante o
-   reserve mínimo. Se o JS estiver ativo, ele sobrescreve com
-   a altura exata medida.
+   No B2B não há promo-bar (a barra marrom de descontos foi
+   removida do HTML). Como várias regras do CSS base calculam
+   --header-visible-h somando --promo-h + --action-h + --header-h,
+   precisamos zerar --promo-h pra que esses cálculos fiquem
+   corretos (account dropdown sticky, reserve de altura, etc.).
    ============================================================ */
 
 :root {
-  /* Fallback caso o JS não rode. Valor com pequeno buffer (200 = 192 + 8) */
-  --uc-real-header-h: 200px;
+  --promo-h: 0px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --promo-h: 0px;
+  }
+}
+
+
+/* ============================================================
+   FIX 19 (Divi 5): Reserva de espaço do header
+   ------------------------------------------------------------
+   No Divi 5, .et-l--header colapsa pra altura 0 porque tudo
+   dentro do nosso Code module é position:fixed. Reservamos
+   espaço via min-height (combinado com o snippet JS que mede
+   a altura real e aplica inline). No B2B o fallback é menor
+   que no EAD porque o B2B não tem promo-bar.
+   ============================================================ */
+
+:root {
+  --uc-real-header-h: 148px; /* fallback: action-bar 60 + main-header 88 (sem promo-bar) */
 }
 
 @media (max-width: 768px) {
@@ -2350,7 +2349,6 @@ body.logged-in .uc-only-logged-in {
   }
 }
 
-/* Seletores de altíssima especificidade para vencer Divi 5 */
 html body #et-boc header.et-l.et-l--header,
 html body header.et-l.et-l--header,
 html body .et-l.et-l--header,
@@ -2360,7 +2358,6 @@ header.et-l.et-l--header,
   display: block !important;
 }
 
-/* No Visual Builder do Divi 5, desabilitar pra não atrapalhar a edição */
 body.et-fb header.et-l.et-l--header,
 body.et-fb .et-l.et-l--header,
 body.et-bfb header.et-l.et-l--header,
@@ -2376,8 +2373,9 @@ body.et-bfb .et-l.et-l--header {
    no mobile com uma sequência de prioridade comercial diferente
    da numeração visual (01-07) que aparece em cada bloco.
    Resultado: usuário vê 01, 04, 05, 06, 03, 02, 07 — confuso.
-   
+
    Aqui restauramos a ordem natural do HTML, que já é 01→07.
+   (O B2B também tem as 7 mega-cat, então precisa deste fix.)
    ============================================================ */
 
 @media (max-width: 768px) {
@@ -2394,15 +2392,10 @@ body.et-bfb .et-l.et-l--header {
 
 
 /* ============================================================
-   FIX 21: Botão "Pesquisar" — proteger estilo contra interferência do Divi
+   FIX 21: Botão "Pesquisar" — proteger contra Divi
    ------------------------------------------------------------
-   O Divi adiciona regras genéricas a <button> através de classes
-   no body (et_pb_button_helper_class, et_button_no_icon) que podem
-   sobrescrever padding/background/display do nosso botão. Resultado:
-   o hover preenche só a área do texto, ignorando o padding/border.
-   
-   Aqui blindamos com seletor de alta especificidade + !important,
-   garantindo que dimensões e visual fiquem corretos sempre.
+   O Divi aplica regras genéricas a <button> via classes no body
+   que sobrescrevem padding/background do nosso botão.
    ============================================================ */
 
 html body .site-header .search-bar__submit,
@@ -2434,19 +2427,10 @@ html body #et-boc .search-bar__submit:focus {
 
 
 /* ============================================================
-   FIX 22: Dropdown da conta no mobile com gap quando sticky
+   FIX 22: Dropdown da conta no mobile sticky
    ------------------------------------------------------------
-   O dropdown da conta no mobile (.account-dropdown) está em
-   position:fixed com top = (--promo-h + --action-h + --header-h + 12px),
-   ou seja, soma as alturas dos 3 níveis do header em estado NORMAL.
-   
-   Quando o header fica sticky (body.is-header-stuck), a promo-bar e
-   action-bar somem mas o cálculo continua somando elas, jogando
-   o dropdown longe do botão.
-   
-   Solução: usar a CSS variable --header-visible-h que o próprio
-   CSS base já mantém atualizada conforme o estado (normal: soma
-   tudo; sticky: vira 56px no mobile / 64px no desktop).
+   Usar --header-visible-h (que se atualiza no sticky) em vez
+   de somar manualmente as alturas dos 3 níveis.
    ============================================================ */
 
 @media (max-width: 768px) {
@@ -2457,36 +2441,12 @@ html body #et-boc .search-bar__submit:focus {
 
 
 /* ============================================================
-   FIX 23 (v2): Stacking context unificado no wrapper do header
+   FIX 23: Stacking context unificado no wrapper
    ------------------------------------------------------------
-   PROBLEMA: o .site-header tem z-index:100 e o .mega-menu tem
-   z-index:200 — relação correta entre eles, mas insuficiente
-   pra cobrir módulos Divi em certas páginas (ex: home do EAD).
-   
-   A primeira tentativa (subir z-index individuais pra 9100/9200)
-   funcionaria SE site-header e mega-menu estivessem no mesmo
-   stacking context — mas eles estão dentro do <header.et-l--header>
-   do Divi 5, e algum ancestral (provavelmente um wrapper Divi
-   da home) está criando seu próprio stacking context com z-index
-   alto, "engolindo" os 9100/9200 e fazendo o cabeçalho aparecer
-   sobre o mega-menu.
-   
-   SOLUÇÃO ROBUSTA: criar UM stacking context único no wrapper
-   <header.et-l--header>. Tudo que está dentro (site-header,
-   mega-menu, drawer, dropdown) compete APENAS dentro desse
-   contexto — então a hierarquia original (200 > 100) volta a
-   funcionar perfeitamente. E o conjunto INTEIRO fica em
-   z-index 9999 relativo ao body, blindando contra qualquer
-   módulo Divi com z-index alto na página.
-   
-   Defesa em profundidade: aplicamos no <header.et-l--header>
-   E também na section interna .et_pb_section.uc-header-host,
-   pra cobrir o caso de o Divi 5 criar contextos isolados em
-   qualquer um dos níveis.
-   
-   `isolation: isolate` reforça a criação do stacking context
-   sem depender só do z-index (defensiva contra futuras
-   mudanças do Divi).
+   Cria UM stacking context no <header.et-l--header> em z-index
+   alto. Tudo que está dentro (site-header, mega-menu, drawer,
+   dropdowns) mantém sua hierarquia interna, e o conjunto
+   inteiro fica acima de qualquer módulo Divi.
    ============================================================ */
 
 html body header.et-l.et-l--header {
@@ -2498,67 +2458,6 @@ html body header.et-l.et-l--header {
 html body .et_pb_section.uc-header-host {
   position: relative !important;
   z-index: auto !important;
-}
-
-/* ============================================================
-   UNIQUE HEADER — EXTRAS PARA B2B
-   Data: 2026-05-29
-   ------------------------------------------------------------
-   Anexar este CSS LOGO APÓS o patch principal em:
-   Divi → Opções do Tema → Personalizar → CSS Personalizado.
-
-   ORDEM DE COLAGEM no campo CSS Personalizado:
-   1. unique-header-divi.css       (CSS principal)
-   2. unique-header-patch.css      (FIX 1-18)
-   3. unique-header-B2B-extras.css (este arquivo)
-   ============================================================ */
-
-
-/* ============================================================
-   B2B-1: Zerar a altura da promo-bar
-   ------------------------------------------------------------
-   No B2B não há promo-bar (a barra marrom de descontos foi
-   removida do HTML). Como várias regras do CSS base calculam
-   --header-visible-h somando --promo-h + --action-h + --header-h,
-   precisamos zerar --promo-h pra que esses cálculos fiquem
-   corretos (account dropdown sticky, reserve de altura, etc.).
-   ============================================================ */
-
-:root {
-  --promo-h: 0px;
-}
-
-@media (max-width: 768px) {
-  :root {
-    --promo-h: 0px;
-  }
-}
-
-
-/* ============================================================
-   B2B-2: Controle de visibilidade por estado de login
-   ------------------------------------------------------------
-   O WordPress adiciona automaticamente `logged-in` ao <body>
-   quando o usuário está autenticado. Usamos isso pra mostrar
-   "Quero Revender" só pra não-logados (revendedor não precisa
-   ver CTA pra virar revendedor).
-   ============================================================ */
-
-.uc-only-logged-in,
-.uc-only-logged-out {
-  display: none !important;
-}
-
-body:not(.logged-in) .uc-only-logged-out {
-  display: flex !important;
-}
-
-body.logged-in .uc-only-logged-in {
-  display: flex !important;
-}
-
-.action-bar .cta-pills {
-  min-height: 32px;
 }
 
 
@@ -2692,110 +2591,4 @@ a.drawer-cat--link:hover {
 a.drawer-cat--link svg {
   flex-shrink: 0;
   margin-left: auto;
-}
-
-
-/* ============================================================
-   FIX 19 (Divi 5): Reserva de espaço do header
-   ------------------------------------------------------------
-   No Divi 5, .et-l--header colapsa pra altura 0 porque tudo
-   dentro do nosso Code module é position:fixed. Reservamos
-   espaço via min-height (combinado com o snippet JS que mede
-   a altura real e aplica inline).
-   ============================================================ */
-
-:root {
-  --uc-real-header-h: 148px; /* fallback: action-bar 60 + main-header 88 */
-}
-
-@media (max-width: 768px) {
-  :root {
-    --uc-real-header-h: 130px;
-  }
-}
-
-html body #et-boc header.et-l.et-l--header,
-html body header.et-l.et-l--header,
-html body .et-l.et-l--header,
-header.et-l.et-l--header,
-.et-l.et-l--header {
-  min-height: var(--uc-real-header-h) !important;
-  display: block !important;
-}
-
-body.et-fb header.et-l.et-l--header,
-body.et-fb .et-l.et-l--header,
-body.et-bfb header.et-l.et-l--header,
-body.et-bfb .et-l.et-l--header {
-  min-height: 0 !important;
-}
-
-
-/* ============================================================
-   FIX 21: Botão "Pesquisar" — proteger contra Divi
-   ------------------------------------------------------------
-   O Divi aplica regras genéricas a <button> via classes no body
-   que sobrescrevem padding/background do nosso botão.
-   ============================================================ */
-
-html body .site-header .search-bar__submit,
-html body #et-boc .search-bar__submit {
-  font-family: var(--ff-display) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.1em !important;
-  text-transform: uppercase !important;
-  color: var(--gold) !important;
-  padding: 10px 18px !important;
-  border: 1.5px solid var(--gold) !important;
-  border-radius: var(--radius-pill) !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  line-height: 1 !important;
-  display: inline-block !important;
-  cursor: pointer !important;
-  transition: background-color .2s var(--ease), color .2s var(--ease) !important;
-}
-
-html body .site-header .search-bar__submit:hover,
-html body .site-header .search-bar__submit:focus,
-html body #et-boc .search-bar__submit:hover,
-html body #et-boc .search-bar__submit:focus {
-  background-color: var(--gold) !important;
-  color: var(--offwhite) !important;
-}
-
-
-/* ============================================================
-   FIX 22: Dropdown da conta no mobile sticky
-   ------------------------------------------------------------
-   Usar --header-visible-h (que se atualiza no sticky) em vez
-   de somar manualmente as alturas dos 3 níveis.
-   ============================================================ */
-
-@media (max-width: 768px) {
-  .account-dropdown {
-    top: calc(var(--header-visible-h) + 12px) !important;
-  }
-}
-
-
-/* ============================================================
-   FIX 23: Stacking context unificado no wrapper
-   ------------------------------------------------------------
-   Cria UM stacking context no <header.et-l--header> em z-index
-   alto. Tudo que está dentro (site-header, mega-menu, drawer,
-   dropdowns) mantém sua hierarquia interna, e o conjunto
-   inteiro fica acima de qualquer módulo Divi.
-   ============================================================ */
-
-html body header.et-l.et-l--header {
-  position: relative !important;
-  z-index: 9999 !important;
-  isolation: isolate;
-}
-
-html body .et_pb_section.uc-header-host {
-  position: relative !important;
-  z-index: auto !important;
 }
