@@ -2359,3 +2359,20 @@ html body #et-boc .search-bar__submit:focus {
     top: calc(var(--header-visible-h) + 12px) !important;
   }
 }
+
+
+/* ─── BANNER +UNIQUE REMOVIDO (temporário) — grid 4→3 colunas ─────────
+   O 4º item do grid do mega-menu (+UNIQUE) era o card banner .mega-feature
+   ("Destaque do mês / Melaço"). Ele foi removido do HTML por enquanto
+   (ver docs/mega-feature-banner.md pra restaurar). Sem ele, sobravam só
+   as 3 colunas de categorias num grid de 4 → buraco na direita no desktop.
+   Aqui fechamos o grid em 3 colunas no desktop (>1024px). Os breakpoints
+   menores (≤1024 = 2 col, ≤768 = 1 col) continuam vindo do header-base.css.
+
+   PARA RESTAURAR O BANNER: recole o bloco HTML (docs/mega-feature-banner.md)
+   e REMOVA este bloco — o grid volta pras 4 colunas originais do base. */
+@media (min-width: 1025px) {
+  .mega-menu__inner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
