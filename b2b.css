@@ -2309,10 +2309,12 @@ body.logged-in .uc-only-logged-in {
 
 
 /* ============================================================
-   B2B: Conta no menu principal (logado) + esconder por role
+   B2B: Conta no menu principal (Dengo) + esconder por role
    ------------------------------------------------------------
    (1) .uc-nav-logged-in — atalhos "Minha Conta" / "Meus Pedidos"
-       no menu principal (desktop), só pra quem está logado. No mobile
+       no menu principal (desktop). Aparecem SÓ pros revendedores
+       Dengo (que têm o menu enxuto), NÃO pros demais usuários
+       logados — esses seguem usando o dropdown da Conta. No mobile
        os .nav-item já somem (navegação vai toda pro drawer), então
        mantemos escondido lá também.
    (2) .uc-hide-dengo — some pros revendedores Dengo (roles dengo1 /
@@ -2322,15 +2324,19 @@ body.logged-in .uc-only-logged-in {
        (no header e no drawer). "Pedido Rápido" e a conta continuam.
    ============================================================ */
 
-/* (1) Conta no menu principal — desktop, só logado */
+/* (1) Conta no menu principal — desktop, SÓ pros roles Dengo */
 .nav-item.uc-nav-logged-in {
   display: none !important;
 }
-body.logged-in .nav-item.uc-nav-logged-in {
+body.uc-role-dengo1 .nav-item.uc-nav-logged-in,
+body.uc-role-dengo-loja-propria .nav-item.uc-nav-logged-in,
+body.uc-role-dengo-franquia .nav-item.uc-nav-logged-in {
   display: block !important;
 }
 @media (max-width: 768px) {
-  body.logged-in .nav-item.uc-nav-logged-in {
+  body.uc-role-dengo1 .nav-item.uc-nav-logged-in,
+  body.uc-role-dengo-loja-propria .nav-item.uc-nav-logged-in,
+  body.uc-role-dengo-franquia .nav-item.uc-nav-logged-in {
     display: none !important;
   }
 }
