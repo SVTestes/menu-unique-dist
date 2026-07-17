@@ -2309,6 +2309,41 @@ body.logged-in .uc-only-logged-in {
 
 
 /* ============================================================
+   B2B: Conta no menu principal (logado) + esconder por role
+   ------------------------------------------------------------
+   (1) .uc-nav-logged-in — atalhos "Minha Conta" / "Meus Pedidos"
+       no menu principal (desktop), só pra quem está logado. No mobile
+       os .nav-item já somem (navegação vai toda pro drawer), então
+       mantemos escondido lá também.
+   (2) .uc-hide-dengo — some pros revendedores Dengo (roles dengo1 /
+       dengo-loja-propria / dengo-franquia). O snippet PHP
+       (shared/cart-fragment.php) adiciona `body.uc-role-<role>` ao
+       <body>. Esconde Início, Loja, Ferramentas, +Unique, IA e busca
+       (no header e no drawer). "Pedido Rápido" e a conta continuam.
+   ============================================================ */
+
+/* (1) Conta no menu principal — desktop, só logado */
+.nav-item.uc-nav-logged-in {
+  display: none !important;
+}
+body.logged-in .nav-item.uc-nav-logged-in {
+  display: block !important;
+}
+@media (max-width: 768px) {
+  body.logged-in .nav-item.uc-nav-logged-in {
+    display: none !important;
+  }
+}
+
+/* (2) Esconder itens pros revendedores Dengo */
+body.uc-role-dengo1 .uc-hide-dengo,
+body.uc-role-dengo-loja-propria .uc-hide-dengo,
+body.uc-role-dengo-franquia .uc-hide-dengo {
+  display: none !important;
+}
+
+
+/* ============================================================
    B2B-1: Zerar a altura da promo-bar
    ------------------------------------------------------------
    No B2B não há promo-bar (a barra marrom de descontos foi
