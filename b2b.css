@@ -2317,34 +2317,48 @@ body.logged-in .uc-only-logged-in {
        logados — esses seguem usando o dropdown da Conta. No mobile
        os .nav-item já somem (navegação vai toda pro drawer), então
        mantemos escondido lá também.
-   (2) .uc-hide-dengo — some pros revendedores Dengo (roles dengo1 /
-       dengo-loja-propria / dengo-franquia). O snippet PHP
+   (2) .uc-hide-dengo — some pros revendedores Dengo. O snippet PHP
        (shared/cart-fragment.php) adiciona `body.uc-role-<role>` ao
        <body>. Esconde Início, Loja, Ferramentas, +Unique, IA e busca
        (no header e no drawer). "Pedido Rápido" e a conta continuam.
+
+   COMO AS ROLES DENGO SÃO CASADAS AQUI
+   ------------------------------------------------------------
+   Pelo prefixo do slug (`[class*="uc-role-dengo"]`), não por uma lista
+   escrita à mão. O motivo é concreto: a lista fixa (dengo1,
+   dengo-loja-propria, dengo-franquia) só funciona quando o slug real da
+   role no WordPress bate letra por letra com o que está escrito aqui, e o
+   slug não acompanha o rótulo do painel — "Dengo - Franquia" pode estar
+   salva como dengo2 ou dengo_franquia. Quando não bate, o seletor
+   simplesmente não casa: nenhum erro, nenhum aviso, o item continua
+   aparecendo. Foi exatamente o que aconteceu com a Franquia, que seguia
+   vendo Loja/Ferramentas/+Unique e não recebia os atalhos de conta.
+
+   `[class*="uc-role-dengo"]` exige a substring literal "uc-role-dengo",
+   ou seja, na prática é um casamento por prefixo do slug: pega
+   uc-role-dengo1, uc-role-dengo2, uc-role-dengo-franquia,
+   uc-role-dengo_loja_propria; e NÃO pega uc-role-revenda-dengo, onde a
+   substring não existe. Role Dengo nova passa a ser coberta sozinha.
+
+   Se algum dia existir uma role Dengo que precise do menu completo,
+   volte à lista explícita ou abra uma exceção com :not().
    ============================================================ */
 
 /* (1) Conta no menu principal — desktop, SÓ pros roles Dengo */
 .nav-item.uc-nav-logged-in {
   display: none !important;
 }
-body.uc-role-dengo1 .nav-item.uc-nav-logged-in,
-body.uc-role-dengo-loja-propria .nav-item.uc-nav-logged-in,
-body.uc-role-dengo-franquia .nav-item.uc-nav-logged-in {
+body[class*="uc-role-dengo"] .nav-item.uc-nav-logged-in {
   display: block !important;
 }
 @media (max-width: 768px) {
-  body.uc-role-dengo1 .nav-item.uc-nav-logged-in,
-  body.uc-role-dengo-loja-propria .nav-item.uc-nav-logged-in,
-  body.uc-role-dengo-franquia .nav-item.uc-nav-logged-in {
+  body[class*="uc-role-dengo"] .nav-item.uc-nav-logged-in {
     display: none !important;
   }
 }
 
 /* (2) Esconder itens pros revendedores Dengo */
-body.uc-role-dengo1 .uc-hide-dengo,
-body.uc-role-dengo-loja-propria .uc-hide-dengo,
-body.uc-role-dengo-franquia .uc-hide-dengo {
+body[class*="uc-role-dengo"] .uc-hide-dengo {
   display: none !important;
 }
 
